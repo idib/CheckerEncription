@@ -5,7 +5,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.regex.Matcher;
@@ -14,8 +13,9 @@ import java.util.regex.Pattern;
 /**
  * Created by idib on 14.02.17.
  */
-public class tryGoogle implements Callable<Integer> {
+public class TryGoogle implements Callable<Integer> {
     private double eps = 1e3;
+    private int timeSleep = 1000;
 
     private static Pattern patternDomainName;
     private Matcher matcher;
@@ -28,20 +28,14 @@ public class tryGoogle implements Callable<Integer> {
         patternDomainName = Pattern.compile(DOMAIN_NAME_PATTERN);
     }
 
-    public tryGoogle() {
+    public TryGoogle() {
         tested = new LinkedList<>();
     }
 
-    public void add(String a){
-        if (a.length() > 13)
-            tested.add(a.substring(0,13));
-        else
-            tested.add(a);
-    }
 
     public static void main(String[] args) {
 
-        tryGoogle obj = new tryGoogle();
+        TryGoogle obj = new TryGoogle();
         long r = obj.test("mario");
     }
 
@@ -66,7 +60,7 @@ public class tryGoogle implements Callable<Integer> {
 
             // need http protocol, set this as a Google bot agent :)
             Document doc = (Document) Jsoup.connect(request)
-                    .userAgent("Mozilla/6.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)")
+                    .userAgent("Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)")
                     .timeout(5000).get();
 
             // get all links
@@ -74,9 +68,12 @@ public class tryGoogle implements Callable<Integer> {
             Elements links = doc.select("#resultStats");
 
 
-            String countStr =  links.toString();
 
-            countStr  = countStr.replace("&nbsp;","").replace("примерно","").replace("Результатов:","").replace("<div class=\"sd\" id=\"resultStats\">","").replace("</div>","");
+
+            String countStr =  links.text();
+
+
+            countStr  = countStr.replace("примерно","").replace("Результатов:","").replace(" ","");
 
             System.out.println(Long.parseLong(countStr.trim()));
             return Long.parseLong(countStr.trim());
@@ -97,7 +94,7 @@ public class tryGoogle implements Callable<Integer> {
         while (!tested.isEmpty()){
             if (test(tested.poll()) > eps)
                 good++;
-            Thread.sleep(1000);
+            Thread.sleep(timeSleep);
         }
         return good;
     }
