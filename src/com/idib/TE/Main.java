@@ -29,7 +29,7 @@ public class Main {
         }
 
         Future <Integer> tgres = (pool.submit(tg));
-//
+
         List<Boolean> f = new ArrayList<>();
 
         for (Future future : futures) {
