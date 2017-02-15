@@ -12,7 +12,7 @@ public class TesterChars implements Callable<Boolean> {
     HashMap<Character, Double> CharsRus;
     HashMap<Character, Double> CharsEng;
     double maxK = 0;
-    double eps = 9e-3;
+    double eps = 2e-2;
 
 
     public TesterChars(String testStr) {
@@ -123,9 +123,6 @@ public class TesterChars implements Callable<Boolean> {
             }
             avgK =  (double)avg / cEng.size();
         }
-
-
-        System.out.println(avgK);
 
         if (avgK > eps)
             return false;
