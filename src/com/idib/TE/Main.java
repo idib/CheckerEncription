@@ -16,6 +16,7 @@ public class Main {
         for (File file : list) {
             check(file.getPath());
         }
+//        check("src/tests/test5");
     }
 
 

@@ -15,13 +15,13 @@ import java.util.concurrent.Callable;
 public class TesterBor implements Callable<Boolean> {
     String text;
     int index;
-    Node root;
+    private final static Object syn = new Object();
+    static Node root;
     BufferedReader in;
     int N;
     double eps = 0.3;
 
     public TesterBor(String str) {
-        root = new Node();
         N = str.length();
         text = str;
     }
@@ -36,7 +36,10 @@ public class TesterBor implements Callable<Boolean> {
 
     @Override
     public Boolean call() throws Exception {
-        init();
+        synchronized (syn) {
+            if (root == null)
+                init();
+        }
         int good = 0;
         int bad = 0;
         for (index = 0; index < N; index++) {
@@ -50,12 +53,14 @@ public class TesterBor implements Callable<Boolean> {
                 }
             }
         }
+//        System.out.println(good * 1. / (good + bad));
         if ((good + bad) * eps < good)
             return true;
         return false;
     }
 
     private void init() {
+        root = new Node();
         File dirDic = new File("src/dic");
         File[] DicList = dirDic.listFiles();
         for (File file : DicList) {
