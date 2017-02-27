@@ -3,6 +3,7 @@ package com.idib.TE;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -12,84 +13,27 @@ import java.util.concurrent.Callable;
  */
 public class TesterChars implements Callable<Boolean> {
     private final static Object syn = new Object();
-    private static HashMap<Character, Double> CharsRus;
-    private static HashMap<Character, Double> CharsEng;
+
     String testStr;
     String FilePath;
     BufferedReader in;
-    node root;
+    HashMap<Character,node> root;
     double maxK = 0;
     double eps = 2e-2;
+    long uno;
+    long duo;
+    long tri;
 
 
     public TesterChars(String testStr) {
         this.testStr = testStr.toLowerCase();
         synchronized (syn) {
-            if (CharsRus == null) {
-                CharsRus = new HashMap();
-                CharsRus.put('о', 0.10983);
-                CharsRus.put('е', 0.08483);
-                CharsRus.put('а', 0.07998);
-                CharsRus.put('и', 0.07367);
-                CharsRus.put('н', 0.067);
-                CharsRus.put('т', 0.06318);
-                CharsRus.put('с', 0.05473);
-                CharsRus.put('р', 0.04746);
-                CharsRus.put('в', 0.04533);
-                CharsRus.put('л', 0.04343);
-                CharsRus.put('к', 0.03486);
-                CharsRus.put('м', 0.03203);
-                CharsRus.put('д', 0.02977);
-                CharsRus.put('п', 0.02804);
-                CharsRus.put('у', 0.02615);
-                CharsRus.put('я', 0.02001);
-                CharsRus.put('ы', 0.01898);
-                CharsRus.put('ь', 0.01735);
-                CharsRus.put('г', 0.01687);
-                CharsRus.put('з', 0.01641);
-                CharsRus.put('б', 0.01592);
-                CharsRus.put('ч', 0.0145);
-                CharsRus.put('й', 0.01208);
-                CharsRus.put('х', 0.00966);
-                CharsRus.put('ж', 0.0094);
-                CharsRus.put('ш', 0.00718);
-                CharsRus.put('ю', 0.00639);
-                CharsRus.put('ц', 0.00486);
-                CharsRus.put('щ', 0.00361);
-                CharsRus.put('э', 0.00331);
-                CharsRus.put('ф', 0.00267);
-                CharsRus.put('ъ', 0.00037);
-                CharsRus.put('ё', 0.00013);
-
-
-                CharsEng = new HashMap<>();
-                CharsEng.put('a', 8.167);
-                CharsEng.put('b', 1.492);
-                CharsEng.put('c', 2.782);
-                CharsEng.put('d', 4.253);
-                CharsEng.put('e', 12.702);
-                CharsEng.put('f', 2.228);
-                CharsEng.put('g', 2.015);
-                CharsEng.put('h', 6.094);
-                CharsEng.put('i', 6.966);
-                CharsEng.put('j', 0.153);
-                CharsEng.put('k', 0.772);
-                CharsEng.put('l', 4.025);
-                CharsEng.put('m', 2.406);
-                CharsEng.put('n', 6.749);
-                CharsEng.put('o', 7.507);
-                CharsEng.put('p', 1.929);
-                CharsEng.put('q', 0.095);
-                CharsEng.put('r', 5.987);
-                CharsEng.put('s', 6.327);
-                CharsEng.put('t', 9.056);
-                CharsEng.put('u', 2.758);
-                CharsEng.put('v', 0.978);
-                CharsEng.put('w', 2.360);
-                CharsEng.put('x', 0.150);
-                CharsEng.put('y', 1.974);
-                CharsEng.put('z', 0.074);
-            }
+            if (root != null)
+                try {
+                    init();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
         }
     }
 
@@ -139,17 +83,73 @@ public class TesterChars implements Callable<Boolean> {
     private void init() throws FileNotFoundException {
         in = new BufferedReader(new FileReader(FilePath));
         root = new node();
-        String str;
-        //todo read and init
+        try {
+            String str = in.readLine();
+
+            uno = Long.parseLong(in.readLine());
+            duo = Long.parseLong(in.readLine());
+            tri = Long.parseLong(in.readLine());
+            long n = uno + duo + tri;
+            for (int i = 0; i < n; i++) {
+                str = in.readLine();
+                String[] temp = str.split(":");
+                String chars = temp[0];
+                long count = Long.parseLong(temp[1]);
+                addSequence(chars, count);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    class node{
+
+    private void addSequence(String str, long count) {
+        int n = str.length();
+        char a, b, c;
+        a = str.charAt(0);
+        if (n == 1) {
+            if (!root.containsKey(a))
+                root.put(a, new node());
+            root.get(a).count = count;
+        }
+
+        if (n == 2) {
+            b = str.charAt(1);
+            if (!root.containsKey(a))
+                root.put(a, new node());
+            if (!root.get(a).next.containsKey(b))
+                root.get(a).next.put(b,new sub());
+            root.get(a).next.get(b).count = count;
+        }
+
+        if (n == 3) {
+            b = str.charAt(1);
+            c = str.charAt(2);
+            if (!root.next.containsKey(c))
+                root.next.put(c, new sub());
+            if (!root.next.get(c).last.containsKey())
+                root.next.put(c, new sub());
+            root.next.get(c).count = count;
+        }
+    }
+
+    class node {
+        public node() {
+            next = new HashMap<>();
+        }
+
         HashMap<Character, sub> next;
         long count;
-        class sub{
-            node link;
-            long count;
-            HashMap<Character, Long> last;
+    }
+
+
+    class sub {
+        public sub() {
+            last = new HashMap<>();
         }
+
+        node link;
+        long count;
+        HashMap<Character, Long> last;
     }
 }

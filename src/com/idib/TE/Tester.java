@@ -7,6 +7,7 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -14,13 +15,25 @@ import java.util.concurrent.Future;
 /**
  * Created by idib on 15.02.17.
  */
-public class Tester implements Runnable {
+public class Tester implements Callable<Boolean> {
     private TesterChars TC;
     private TesterBor TB;
     private TryGoogle TG;
     private String text;
     private String path;
     private ExecutorService pool;
+//    private static boolean flPrint = true;
+    private static boolean flPrint = false;
+
+    public Tester(ExecutorService pool, String texts) {
+        path = "";
+        this.pool = pool;
+
+        text = texts;
+        TC = new TesterChars(text);
+        TB = new TesterBor(text);
+        //TG = new TryGoogle();
+    }
 
     public Tester(String path, ExecutorService pool) throws IOException {
         this.path = path;
@@ -43,7 +56,7 @@ public class Tester implements Runnable {
     }
 
     @Override
-    public void run() {
+    public Boolean call() throws Exception {
         Future<Boolean> futureTC = pool.submit(TC);
         Future<Boolean> futureTB = pool.submit(TB);
 
@@ -56,17 +69,23 @@ public class Tester implements Runnable {
 
             while (!first || !second) {
                 if (!first && futureTC.isDone()) {
-                    System.out.println(path + "#результ TC " + futureTC.get());
+                    if (flPrint)
+                        System.out.println(path + "#результ TC " + futureTC.get());
                     f.add(futureTC.get());
                     first = true;
                 }
                 if (!second && futureTB.isDone()) {
-                    System.out.println(path + "#результ TB " + futureTB.get());
+                    if (flPrint)
+                        System.out.println(path + "#результ TB " + futureTB.get());
                     f.add(futureTB.get());
                     second = true;
                 }
             }
 
+            if (f.get(0) || f.get(1))
+                return true;
+            else
+                return false;
 
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -74,7 +93,6 @@ public class Tester implements Runnable {
             e.printStackTrace();
         }
 
-
+        return null;
     }
-
 }
