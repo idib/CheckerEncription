@@ -118,6 +118,10 @@ public class TesterBor implements Callable<Boolean> {
                 System.out.println(N);
             }
         }
+        if (cur.terminated) {
+//                    System.out.println();
+            return true;
+        }
 //        System.out.println();
         return false;
     }

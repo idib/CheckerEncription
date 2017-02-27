@@ -140,7 +140,10 @@ public class TesterChars implements Callable<Boolean> {
         in = new BufferedReader(new FileReader(FilePath));
         root = new node();
         String str;
-        //todo read and init
+
+
+
+
     }
 
     class node{
