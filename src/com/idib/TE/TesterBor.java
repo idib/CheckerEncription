@@ -77,7 +77,7 @@ public class TesterBor implements Callable<Boolean> {
     private void addFile(File file) throws IOException {
         in = new BufferedReader(new FileReader(file));
         String str;
-        while ((str = in.readLine()) != null && str.length() != 0) {
+        while ((str = in.readLine()) != null) {
             put(str.trim().toLowerCase());
         }
     }
