@@ -1,5 +1,8 @@
 package com.idib.TE;
 
+import com.cybozu.labs.langdetect.DetectorFactory;
+import com.cybozu.labs.langdetect.LangDetectException;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +16,12 @@ public class Main {
     private static List<Future<Boolean>> results = new ArrayList<>();
 
     public static void main(String[] args) throws IOException, ExecutionException, InterruptedException {
+        try {
+            DetectorFactory.loadProfile("src/dic/gramms");
+        } catch (LangDetectException e) {
+            e.printStackTrace();
+        }
+
         File f = new File("src/tests");
 
         File[] list = f.listFiles();
