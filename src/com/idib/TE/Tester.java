@@ -1,9 +1,7 @@
 package com.idib.TE;
 
-import com.cybozu.labs.langdetect.DetectorFactory;
-import com.cybozu.labs.langdetect.LangDetectException;
-
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,20 +24,17 @@ public class Tester implements Callable<Boolean> {
     private String path;
     private ExecutorService pool;
 
-    public Tester(ExecutorService pool, String texts)  {
+    public Tester(ExecutorService pool, String texts) throws FileNotFoundException {
         path = "";
         this.pool = pool;
 
 
 
         text = texts;
-        try {
-            TC = new TesterChars(text);
-            TB = new TesterBor(text);
-            //TG = new TryGoogle();
-        } catch (LangDetectException e) {
-            e.printStackTrace();
-        }
+
+        TC = new TesterChars(text);
+        TB = new TesterBor(text);
+        //TG = new TryGoogle();
     }
 
     public Tester(String path, ExecutorService pool) throws IOException {
@@ -47,13 +42,10 @@ public class Tester implements Callable<Boolean> {
         this.pool = pool;
 
         text = read(path);
-        try {
-            TC = new TesterChars(text);
-            TB = new TesterBor(text);
-            //TG = new TryGoogle();
-        } catch (LangDetectException e) {
-            e.printStackTrace();
-        }
+
+        TC = new TesterChars(text);
+        TB = new TesterBor(text);
+        //TG = new TryGoogle();
     }
 
     private static String read(String path) throws IOException {

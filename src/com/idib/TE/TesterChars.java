@@ -1,16 +1,10 @@
 package com.idib.TE;
 
-import com.cybozu.labs.langdetect.Detector;
-import com.cybozu.labs.langdetect.DetectorFactory;
-import com.cybozu.labs.langdetect.LangDetectException;
-
-
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.Callable;
 
 /**
@@ -18,31 +12,50 @@ import java.util.concurrent.Callable;
  */
 public class TesterChars implements Callable<Boolean> {
     private final static Object syn = new Object();
-    private static Detector detector;
     private HashMap<Character, node> root;
     private double eps = 2e-2;
     private long uno;
     private long duo;
     private long tri;
+    private long n;
     private BufferedReader in;
     private String testStr;
-    private String FilePath;
+    private String FilePath = "src/dic/gramms/rus";
 
 
-    public TesterChars(String testStr) throws LangDetectException {
+    public TesterChars(String testStr) throws FileNotFoundException {
         this.testStr = testStr.toLowerCase();
-        detector = DetectorFactory.create();
-        detector.append(testStr);
+        init();
     }
 
     @Override
     public Boolean call() throws Exception {
-        int n = testStr.length();
+        try {
+            int n = testStr.length();
+            char last, cur, next;
+            node nd;
+            for (int i = 0; i < n; i++) {
+                if (i > 1)
+                    last = testStr.charAt(i - 1);
+                else
+                    last = ' ';
+                if (i < n - 1)
+                    next = testStr.charAt(i + 1);
+                else
+                    next = ' ';
+                cur = testStr.charAt(i);
+                nd = root.get(cur);
+                nd.cur++;
+                nd.next.get(next).cur++;
+                nd.next.get(next).curlast.put(last, nd.next.get(last).curlast.getOrDefault(last, 0L));
+            }
 
-        String lang = detector.detect();
-        System.out.println(lang);
-        System.out.println(detector.getProbabilities());
-        return false;
+            return false;
+        }
+        catch (Exception e)
+        {
+            return false;
+        }
     }
 
 
@@ -50,18 +63,20 @@ public class TesterChars implements Callable<Boolean> {
         in = new BufferedReader(new FileReader(FilePath));
         root = new HashMap<>();
         try {
-            String str = in.readLine();
-
+            String str;
             uno = Long.parseLong(in.readLine());
             duo = Long.parseLong(in.readLine());
             tri = Long.parseLong(in.readLine());
-            long n = uno + duo + tri;
-            for (int i = 0; i < n; i++) {
-                str = in.readLine();
-                String[] temp = str.split(":");
-                String chars = temp[0];
-                long count = Long.parseLong(temp[1]);
-                addSequence(root, chars, count);
+            n = uno + duo + tri;
+            while((str = in.readLine()) != null){
+                try {
+                    String[] temp = str.split(":");
+                    String chars = temp[0];
+                    long count = Long.parseLong(temp[1]);
+                    addSequence(root, chars, count);
+                }catch (Exception e){
+                    System.err.println(str);
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -101,8 +116,8 @@ public class TesterChars implements Callable<Boolean> {
 
     private class node {
         HashMap<Character, sub> next;
-        long count;
-        long cur;
+        long count = 0;
+        long cur = 0;
 
         public node() {
             next = new HashMap<>();
@@ -111,12 +126,14 @@ public class TesterChars implements Callable<Boolean> {
 
 
     private class sub {
-        node link;
-        long count;
+        long count = 0;
+        long cur = 0;
         HashMap<Character, Long> last;
+        HashMap<Object, Long> curlast;
 
         public sub() {
             last = new HashMap<>();
+            curlast = new HashMap<>();
         }
     }
 }
