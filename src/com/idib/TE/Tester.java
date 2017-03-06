@@ -15,8 +15,8 @@ import java.util.concurrent.Future;
  * Created by idib on 15.02.17.
  */
 public class Tester implements Callable<Boolean> {
-    //    private static boolean flPrint = true;
-    private static boolean flPrint = false;
+    private static boolean flPrint = true;
+    //    private static boolean flPrint = false;
     private TesterChars TC;
     private TesterBor TB;
     private TryGoogle TG;
@@ -27,7 +27,6 @@ public class Tester implements Callable<Boolean> {
     public Tester(ExecutorService pool, String texts) throws FileNotFoundException {
         path = "";
         this.pool = pool;
-
 
 
         text = texts;
@@ -48,7 +47,7 @@ public class Tester implements Callable<Boolean> {
         //TG = new TryGoogle();
     }
 
-    private static String read(String path) throws IOException {
+    public static String read(String path) throws IOException {
         BufferedReader in = new BufferedReader(new FileReader(path));
         StringBuilder text = new StringBuilder();
         String str;
@@ -67,25 +66,15 @@ public class Tester implements Callable<Boolean> {
 
 
         try {
-            boolean first = false;
-            boolean second = false;
 
-            while (!first || !second) {
-                if (!first && futureTC.isDone()) {
-                    if (flPrint)
-                        System.out.println(path + "#результ TC " + futureTC.get());
-                    f.add(futureTC.get());
-                    first = true;
-                }
-                if (!second && futureTB.isDone()) {
-                    if (flPrint)
-                        System.out.println(path + "#результ TB " + futureTB.get());
-                    f.add(futureTB.get());
-                    second = true;
-                }
-            }
+            System.out.println(path + "#Result TC " + futureTC.get());
+            f.add(futureTC.get());
+            System.out.println(path + "#Result TB " + futureTB.get());
+            f.add(futureTB.get());
 
-            if (f.get(0) || f.get(1))
+            if (text.length() > 50 && f.get(0) && f.get(1))
+                return true;
+            else if (f.get(1))
                 return true;
             else
                 return false;

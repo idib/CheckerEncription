@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,11 +17,11 @@ import java.util.concurrent.Future;
  */
 public class TesterBor implements Callable<Boolean> {
     String text;
+    private static Bor root;
     private final static Object syn = new Object();
-    static Node root;
     BufferedReader in;
     int N;
-    double eps = 0.5;
+    double eps = 0.8;
 
     public TesterBor(String str) {
         N = str.length();
@@ -28,7 +29,7 @@ public class TesterBor implements Callable<Boolean> {
     }
 
     public static void main(String[] args) {
-
+        System.out.println(Charset.defaultCharset());
         Scanner in = new Scanner(System.in);
 
 //        String s = in.nextLine();
@@ -63,29 +64,32 @@ public class TesterBor implements Callable<Boolean> {
         }
         int good = 0;
         int bad = 0;
-        String[] splits = text.split("/[^A-Za-z0-9А-Яа-я]+/g");
+        String[] splits = text.split("[^A-Za-zА-Яа-я]+");
         for (int i = 0; i < splits.length; i++) {
-            if (test(splits[i]))
+            if (root.test(splits[i]))
                 good++;
             else
                 bad++;
         }
-
+//
 //        System.out.println("good " + good);
-//        System.out.println("bad" + bad);
+//        System.out.println("bad " + bad);
 //        System.out.println(good * 1. / (good + bad));
+//
+//        if ((good + bad) * eps < good)
+//            System.out.println(true);
+//        else
+//            System.out.println(false);
+//        if ((good + bad) * eps >= good)
+//            System.out.println(good*1. / (good+bad));
 
-        if ((good + bad) * eps < good)
-            System.out.println(true);
-        else
-            System.out.println(false);
         if ((good + bad) * eps < good)
             return true;
         return false;
     }
 
     private void init() {
-        root = new Node();
+        root = new Bor();
         File dirDic = new File("src/dic");
         File[] DicList = dirDic.listFiles();
         for (File file : DicList) {
@@ -103,50 +107,8 @@ public class TesterBor implements Callable<Boolean> {
         in = new BufferedReader(new FileReader(file));
         String str;
         while ((str = in.readLine()) != null) {
-            put(str.trim().toLowerCase());
+            root.put(str.trim().toLowerCase());
         }
     }
 
-    private void put(String input) {
-        int n = input.length();
-        char c;
-        Node cur = root;
-        for (int i = 0; i < n; i++) {
-            c = input.charAt(i);
-            if (!cur.next.containsKey(c)) {
-                Node t = new Node();
-                cur.next.put(c, t);
-            }
-            cur = cur.next.get(c);
-            if (i == n - 1)
-                cur.terminated = true;
-        }
-    }
-
-    private boolean test(String r) {
-        char c;
-        Node cur = root;
-        for (int i = 0; i < r.length(); i++) {
-            c = Character.toLowerCase(text.charAt(i));
-            if (cur.next.containsKey(c)) {
-                cur = cur.next.get(c);
-            } else
-                break;
-            if (i == r.length() - 1 && cur.terminated)
-                return true;
-        }
-        return false;
-    }
-
-    private boolean specialSymbol(char c) {
-        if (!Character.isLetterOrDigit(c) && c != '\'')
-            return true;
-        return false;
-    }
-
-
-    class Node {
-        boolean terminated = false;
-        Map<Character, Node> next = new HashMap<>();
-    }
 }

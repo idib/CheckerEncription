@@ -1,139 +1,150 @@
 package com.idib.TE;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.HashMap;
+import java.io.*;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Stack;
 import java.util.concurrent.Callable;
 
 /**
  * Created by idib on 14.02.17.
  */
 public class TesterChars implements Callable<Boolean> {
-    private final static Object syn = new Object();
-    private HashMap<Character, node> root;
-    private double eps = 2e-2;
-    private long uno;
-    private long duo;
-    private long tri;
-    private long n;
+    private Bor root;
+    private Bor nroot;
+    private double[] eps = {
+            1e-2,
+            1e-2,
+            1e-2
+    };
+    private long[] counts;
+    private long[] ncounts;
     private BufferedReader in;
     private String testStr;
     private String FilePath = "src/dic/gramms/rus";
 
 
-    public TesterChars(String testStr) throws FileNotFoundException {
+    public TesterChars(String testStr) {
         this.testStr = testStr.toLowerCase();
-        init();
+        counts = new long[3];
+        ncounts = new long[3];
     }
 
     @Override
     public Boolean call() throws Exception {
-        try {
-            int n = testStr.length();
-            char last, cur, next;
-            node nd;
-            for (int i = 0; i < n; i++) {
-                if (i > 1)
-                    last = testStr.charAt(i - 1);
-                else
-                    last = ' ';
-                if (i < n - 1)
-                    next = testStr.charAt(i + 1);
-                else
-                    next = ' ';
-                cur = testStr.charAt(i);
-                nd = root.get(cur);
-                nd.cur++;
-                nd.next.get(next).cur++;
-                nd.next.get(next).curlast.put(last, nd.next.get(last).curlast.getOrDefault(last, 0L));
+        init();
+        nroot = new Bor();
+        char c1, c2 = ' ', c3 = ' ';
+        String[] splits = testStr.split("[^A-Za-zА-Яа-я]+");
+        for (String s : splits) {
+            for (int i = 0; i < s.length(); i++) {
+                c1 = c2;
+                c2 = c3;
+                c3 = s.charAt(i);
+                nroot.addCounts("" + c3);
+                ncounts[0]++;
+                if (i > 0) {
+                    nroot.addCounts("" + c2 + c3);
+                    ncounts[1]++;
+                }
+                if (i > 1) {
+                    nroot.addCounts("" + c1 + c2 + c3);
+                    ncounts[2]++;
+                }
+            }
+        }
+
+        double dif[] = AvgDifferent(nroot.root, root.root);
+        boolean fl = true;
+//        System.out.println();
+//        System.out.println();
+//        System.out.println(Arrays.toString(dif));
+        for (int i = 0; fl && i < eps.length; i++) {
+            if (dif[i] > eps[i])
+                fl = false;
+        }
+        return fl;
+    }
+
+
+    private double[] AvgDifferent(Bor.Node a, Bor.Node b) {
+        Stack<Bor.Node> sA = new Stack<>();
+        Stack<Bor.Node> sB = new Stack<>();
+        Stack<Integer> slvl = new Stack<>();
+
+        sA.add(a);
+        sB.add(b);
+        slvl.add(-1);
+        int lvl;
+
+
+        double[] dif = new double[3];
+        long[] n = new long[3];
+
+        while (!sA.empty()) {
+            a = sA.pop();
+            b = sB.pop();
+            lvl = slvl.pop();
+
+            if (lvl != -1) {
+                dif[lvl] += (double) a.counts / ncounts[lvl] - (double) b.counts / counts[lvl];
+                n[lvl]++;
             }
 
-            return false;
+            for (Map.Entry<Character, Bor.Node> entA : a.next.entrySet()) {
+                char c = entA.getKey();
+                Bor.Node subA = entA.getValue();
+                if (b.next.containsKey(c)) {
+                    Bor.Node subB = b.next.get(c);
+
+                    sA.add(subA);
+                    sB.add(subB);
+                    if (c == ' ')
+                        slvl.add(lvl);
+                    else
+                        slvl.add(lvl + 1);
+                }
+            }
         }
-        catch (Exception e)
-        {
-            return false;
+
+        for (int i = 0; i < dif.length; i++) {
+            dif[i] = dif[i] / n[i];
         }
+
+        return dif;
     }
 
 
     private void init() throws FileNotFoundException {
         in = new BufferedReader(new FileReader(FilePath));
-        root = new HashMap<>();
+        root = new Bor();
         try {
             String str;
-            uno = Long.parseLong(in.readLine());
-            duo = Long.parseLong(in.readLine());
-            tri = Long.parseLong(in.readLine());
-            n = uno + duo + tri;
-            while((str = in.readLine()) != null){
-                try {
-                    String[] temp = str.split(":");
-                    String chars = temp[0];
-                    long count = Long.parseLong(temp[1]);
-                    addSequence(root, chars, count);
-                }catch (Exception e){
-                    System.err.println(str);
-                }
+            counts[0] = Long.parseLong(in.readLine());
+            counts[1] = Long.parseLong(in.readLine());
+            counts[2] = Long.parseLong(in.readLine());
+            while ((str = in.readLine()) != null) {
+                String[] temp = str.split(":");
+                String chars = temp[0];
+                long count = Long.parseLong(temp[1]);
+                root.put(chars, count);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    public static void main(String[] args) {
+        try{
+            File f = new File("src/tests");
 
-    private void addSequence(HashMap<Character, node> cur, String str, long count) {
-        int n = str.length();
-        char a, b, c;
-        a = str.charAt(0);
-        if (n == 1) {
-            if (!cur.containsKey(a))
-                cur.put(a, new node());
-            cur.get(a).count = count;
-        }
+            File[] list = f.listFiles();
 
-        if (n == 2) {
-            b = str.charAt(1);
-            if (!cur.containsKey(a))
-                cur.put(a, new node());
-            if (!cur.get(a).next.containsKey(b))
-                cur.get(a).next.put(b, new sub());
-            cur.get(a).next.get(b).count = count;
-        }
+            for (File file : list) {
+                System.out.println(file.getPath() + "#" +  new TesterChars(Tester.read(file.getPath())).call());
+            }
+        }catch (Exception e){
 
-        if (n == 3) {
-            b = str.charAt(1);
-            c = str.charAt(2);
-            if (!cur.containsKey(a))
-                cur.put(a, new node());
-            if (!cur.get(a).next.containsKey(b))
-                cur.get(a).next.put(b, new sub());
-            cur.get(a).next.get(b).last.put(c, count);
-        }
-    }
-
-    private class node {
-        HashMap<Character, sub> next;
-        long count = 0;
-        long cur = 0;
-
-        public node() {
-            next = new HashMap<>();
-        }
-    }
-
-
-    private class sub {
-        long count = 0;
-        long cur = 0;
-        HashMap<Character, Long> last;
-        HashMap<Object, Long> curlast;
-
-        public sub() {
-            last = new HashMap<>();
-            curlast = new HashMap<>();
         }
     }
 }
