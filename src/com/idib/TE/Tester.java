@@ -15,8 +15,8 @@ import java.util.concurrent.Future;
  * Created by idib on 15.02.17.
  */
 public class Tester implements Callable<Boolean> {
-    private static boolean flPrint = true;
-    //    private static boolean flPrint = false;
+//    private static boolean flPrint = true;
+        private static boolean flPrint = false;
     private TesterChars TC;
     private TesterBor TB;
     private TryGoogle TG;

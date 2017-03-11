@@ -15,14 +15,18 @@ public class task2 {
 
     public static void main(String[] args) throws IOException, ExecutionException, InterruptedException {
         String texts = read("src/tests/test0");
+        String text1s = read("src/tests/test00");
         arr = gen(texts);
-        next(new char[5][5], new boolean[5], 0);
+        next(arr,new char[5][5], new boolean[5], 0);
+
+        arr = gen(text1s);
+        nextv(new char[5][5], new boolean[5], 0);
     }
 
 
     private static char[][] gen(String s) {
         char[][] r = new char[5][5];
-        for (int i = 0; i < s.length(); i++) {
+        for (int i = 0; i < s.length() && i < 25; i++) {
             r[i / 5][i % 5] = s.charAt(i);
 //            r[i % 5][i / 5] = s.charAt(i);
         }
@@ -34,7 +38,7 @@ public class task2 {
         String s = "";
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 5; j++) {
-                s+=mat[i][j];
+                s += mat[i][j];
             }
         }
 //        for (int j = 0; j < 5; j++) {
@@ -45,15 +49,15 @@ public class task2 {
         return s;
     }
 
-    private static void print (char[][] mat) {
+    private static void print(char[][] mat) {
         String s = "";
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 5; j++) {
-                s+=mat[i][j];
+                s += mat[i][j];
             }
-            s+='\n';
+            s += '\n';
         }
-        System.out.println( s);
+        System.out.println(s);
     }
 
     public static char[][] swapCol(char[][] mat, int a, int b) {
@@ -65,11 +69,13 @@ public class task2 {
         return mat;
     }
 
-    private static void next(char[][] mat, boolean[] use, int depth) throws FileNotFoundException {
+    private static void next(char[][] inar, char[][] mat, boolean[] use, int depth) throws FileNotFoundException {
         if (depth == 5) {
-            Tester t = new Tester(pool, toS(mat));
+            Future<Boolean> f = pool.submit(new TesterBor(toS(mat)));
+
             try {
-                Boolean rus = t.call();
+                Boolean rus = f.get();
+//                System.out.println(toS(mat));
                 if (rus) {
                     print(mat);
                     System.out.println("TEXT");
@@ -83,8 +89,24 @@ public class task2 {
             for (int i = 0; i < mat.length; i++) {
                 if (!use[i]) {
                     use[i] = true;
-                    clone(arr, mat, i, depth);
-                    next(mat, use, depth + 1);
+                    clone(inar, mat, i, depth);
+                    next(inar, mat, use, depth + 1);
+                    use[i] = false;
+                }
+            }
+        }
+    }
+
+
+    private static void nextv(char[][] mat, boolean[] use, int depth) throws FileNotFoundException {
+        if (depth == 5) {
+            next(mat, new char[5][5], new boolean[5], 0);
+        } else {
+            for (int i = 0; i < mat.length; i++) {
+                if (!use[i]) {
+                    use[i] = true;
+                    cloneV(arr, mat, i, depth);
+                    nextv(mat, use, depth + 1);
                     use[i] = false;
                 }
             }
@@ -97,6 +119,11 @@ public class task2 {
         }
     }
 
+    private static void cloneV(char[][] a, char[][] b, int t, int depth) {
+        for (int i = 0; i < a.length; i++) {
+            b[depth][i] = a[t][i];
+        }
+    }
 
     private static void check(String path) throws FileNotFoundException {
         results.add(pools.submit(new Tester(pool, path)));
