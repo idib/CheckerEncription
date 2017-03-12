@@ -1,5 +1,9 @@
 package com.idib.TE;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -62,6 +66,29 @@ public class Bor {
             cur = get(input);
         }
         cur.counts++;
+    }
+
+
+    public static void init(Bor root) {
+        File dirDic = new File("src/dic");
+        File[] DicList = dirDic.listFiles();
+        for (File file : DicList) {
+            if (file.isFile()) {
+                try {
+                    addFile(root,file);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private static void addFile(Bor root ,File file) throws IOException {
+        BufferedReader in = new BufferedReader(new FileReader(file));
+        String str;
+        while ((str = in.readLine()) != null) {
+            root.put(str.trim().toLowerCase());
+        }
     }
 
     class Node {
