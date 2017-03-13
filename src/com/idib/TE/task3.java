@@ -57,7 +57,7 @@ public class task3 {
     static int LimitForFindWords = 20;
     static List<String> dics;
     static Set<HashMap<Integer,Character>> mem = new HashSet<>();
-    static Set<Integer> rer;
+    static Set<Integer> rer = new HashSet<>();
 
     public static void main(String[] args) throws IOException {
         TXT = Tester.read("src/tests/task3");
@@ -110,13 +110,6 @@ public class task3 {
         printWordsNoUnicalCars(intWords);
 
 
-//        HashMap<Integer, Character> cur = new HashMap<>();
-//        while (in.hasNextInt()) {
-//            int i = in.nextInt();
-//            char j = in.next().charAt(0);
-//            cur.put(i, j);
-//            System.out.println(getText(TXT, cur));
-//        }
     }
 
     static void printWordsNoUnicalCars(int[][] intWords) {
@@ -140,6 +133,7 @@ public class task3 {
         for (HashMap<Integer, Character> re : res) {
             System.out.println(re);
             System.out.println(getText(TXT, re));
+            good(re);
         }
     }
 
@@ -163,9 +157,9 @@ public class task3 {
         }
 
 
-        System.out.println(words.size());
+        System.out.println(trans.size());
 
-        if (words.size() == 0) {
+        if (trans.size() >= rer.size() - 10) {
             res.add(trans);
             return res;
         }
@@ -201,6 +195,15 @@ public class task3 {
         }
         return res;
     }
+
+    static void good(HashMap<Integer, Character> cur){
+        while (in.hasNextInt()) {
+            int i = in.nextInt();
+            char j = in.next().charAt(0);
+            cur.put(i, j);
+            System.out.println(getText(TXT, cur));
+        }
+ }
 
     static List<HashMap<Integer, Character>> getTrans(List<String> finds, int[] intWords) {
         Map<Integer, Character> tr = new HashMap<>(), cl;
