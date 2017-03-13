@@ -56,6 +56,8 @@ public class task3 {
     static List<HashMap<Integer, Character>> vars;
     static int LimitForFindWords = 20;
     static List<String> dics;
+    static Set<HashMap<Integer,Character>> mem = new HashSet<>();
+    static Set<Integer> rer;
 
     public static void main(String[] args) throws IOException {
         TXT = Tester.read("src/tests/task3");
@@ -75,6 +77,7 @@ public class task3 {
         for (int[] word : intWords) {
             for (int i : word) {
                 cI.put(i, cI.getOrDefault(i, 0) + 1);
+                rer.add(i);
                 counts++;
             }
         }
@@ -142,6 +145,12 @@ public class task3 {
 
 
     static Set<HashMap<Integer, Character>> nextVar(HashMap<Integer, Character> trans, int[][] intWords) {
+        Set<HashMap<Integer, Character>> res = new HashSet<>();
+
+        if(mem.contains(trans))
+            return res;
+        else
+            mem.add(trans);
         List<nodesort> words = new ArrayList<>();
         for (int[] w : intWords) {
             int counts = 0;
@@ -153,7 +162,6 @@ public class task3 {
                 words.add(new nodesort(w, w.length - counts));
         }
 
-        Set<HashMap<Integer, Character>> res = new HashSet<>();
 
         System.out.println(words.size());
 
@@ -168,11 +176,20 @@ public class task3 {
             else
                 return Integer.compare(o2.w.length, o1.w.length);
         });
+        List<rrr> strL = new ArrayList<>();
         for (nodesort word : words) {
             List<String> temp = find(word.w, trans);
+            if (temp.size()!=0)
+                strL.add(new rrr(word.w, temp));
+        }
+
+        strL.sort((o1, o2) -> Integer.compare(o1.l.size(),o2.l.size()));
+
+        for (rrr qwr : strL) {
+            List<String> temp = qwr.l;
+            System.out.println(temp);
             if (temp != null && temp.size() != 0) {
-                System.out.println(temp);
-                List<HashMap<Integer, Character>> li = getTrans(trans, temp, word.w);
+                List<HashMap<Integer, Character>> li = getTrans(trans, temp, qwr.w);
                 for (HashMap<Integer, Character> ent : li) {
                     Set<HashMap<Integer, Character>> r = nextVar(ent, intWords);
                     if (r.size() == 1)
@@ -346,6 +363,16 @@ public class task3 {
         public nodesort(int[] w, int c) {
             this.w = w;
             this.c = c;
+        }
+    }
+
+    static class rrr{
+        int[] w;
+        List<String> l;
+
+        public rrr(int[] w, List<String> l) {
+            this.w = w;
+            this.l = l;
         }
     }
 }
