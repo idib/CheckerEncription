@@ -1,32 +1,22 @@
 package com.idib.TE;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Scanner;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by idib on 06.03.17.
  */
 public class temp {
     public static void main(String[] args) throws IOException {
-        Scanner in  = new Scanner(new File("src/dic/All_Forms2.txt"));
-        FileWriter out;
-        File file = new File("src/dic/All_Forms4.txt");
-        out = new FileWriter(file);
-//        while (in.hasNextLine())
-//        {
-//            String l = in.nextLine();
-//            if (l.length() == 16)
-//                out.write(l + '\n');
-//        }
+//        System.out.println(task3.find(new int[]{90, 26, 26, 63, 68, 24, 63, 90, 63, 68, 32, 11, 30, 67, 24}, new HashMap<>()));
 
-        for (char i = 'а'; i <= 'я'; i++) {
-            out.write(i +".{4}" + i + '|');
-        }
+        Set<HashMap<Integer,Integer>> mem  = new HashSet<>();
+        mem.add(new HashMap<Integer,Integer>(){{put(1,2);put(2,4);}});
+        mem.add(new HashMap<Integer,Integer>(){{put(3,2);put(2,4);}});
+        mem.add(new HashMap<Integer,Integer>(){{put(2,4);put(1,2);}});
 
-
-        out.close();
+        System.out.println(mem);
     }
 }

@@ -68,7 +68,6 @@ public class Bor {
         cur.counts++;
     }
 
-
     public static void init(Bor root) {
         File dirDic = new File("src/dic");
         File[] DicList = dirDic.listFiles();
