@@ -62,8 +62,8 @@ public class task3 {
     private static int MinWrSize = 999;
 
     public static void main(String[] args) throws IOException {
-        TXT = Tester.read("src/tests/task3");
-//        TXT = Tester.read("src/tests/task3_4");
+//        TXT = Tester.read("src/tests/task3");
+        TXT = Tester.read("src/tests/task3_4");
         String[] words = TXT.split("([^\\d] )+");
         int[][] intWords = new int[words.length][];
         for (int i = 0; i < words.length; i++) {
