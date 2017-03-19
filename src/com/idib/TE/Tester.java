@@ -19,7 +19,6 @@ public class Tester implements Callable<Boolean> {
         private static boolean flPrint = false;
     private TesterChars TC;
     private TesterBor TB;
-    private TryGoogle TG;
     private String text;
     private String path;
     private ExecutorService pool;
