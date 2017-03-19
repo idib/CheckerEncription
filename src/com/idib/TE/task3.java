@@ -126,7 +126,7 @@ public class task3 {
         });
 
         System.out.println("alp size" + rer.size());
-        System.out.println("count words"+ intWords.length);
+        System.out.println("count words" + intWords.length);
         MinTrSize = in.nextInt();
 //        MinWrSize = in.nextInt();
 
@@ -137,20 +137,8 @@ public class task3 {
         for (HashMap<Integer, Character> li : lis) {
             res.addAll(nextVar(li, intWords));
         }
-        boolean fl = true;
-        while (fl)
-        for (HashMap<Integer, Character> re : res) {
-            System.out.println(re);
-            System.out.println(getText(TXT, re));
-            fl = false;
-            if(good(re))
-            {
-                fl = true;
-                res = nextVar(re,intWords);
-            }
-        }
-    }
 
+    }
 
     static Set<HashMap<Integer, Character>> nextVar(HashMap<Integer, Character> trans, int[][] intWords) {
         Set<HashMap<Integer, Character>> res = new HashSet<>();
@@ -175,6 +163,9 @@ public class task3 {
         System.out.println("" + words.size() + '/' + intWords.length);
 
         if (trans.size() >= MinTrSize || words.size() >= MinWrSize) {
+            System.out.println(trans);
+            System.out.println(getText(TXT, trans));
+            good(trans);
             res.add(trans);
             return res;
         }
@@ -201,17 +192,17 @@ public class task3 {
                 List<HashMap<Integer, Character>> li = getTrans(trans, temp, qwr.w);
                 for (HashMap<Integer, Character> ent : li) {
                     Set<HashMap<Integer, Character>> r = nextVar(ent, intWords);
-                    if (r.size() == 1)
-                        return r;
-                    else
-                        res.addAll(r);
+                    res.addAll(r);
                 }
             }
         }
         return res;
     }
 
-    static boolean good(HashMap<Integer, Character> cur) {
+    static void good(HashMap<Integer, Character> cur) {
+        System.out.println("улучшить? (д/н)");
+        if(in.next().charAt(0) != 'д')
+            return;
         while (in.hasNextInt()) {
             int i = in.nextInt();
             char j = in.next().charAt(0);
@@ -219,19 +210,6 @@ public class task3 {
             System.out.println("" + cur.size() + '/' + rer.size());
             System.out.println(getText(TXT, cur));
         }
-
-        System.out.println("введите a  затем число");
-        if (in.next().charAt(0) == 'а')
-        {
-            MinTrSize = in.nextInt();
-            return true;
-        }
-//        if (in.next().charAt(0) == 'w')
-//        {
-//            MinWrSize = in.nextInt();
-//            return true;
-//        }
-        return false;
     }
 
     static List<HashMap<Integer, Character>> getTrans(List<String> finds, int[] intWords) {
